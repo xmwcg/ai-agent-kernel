@@ -3,7 +3,9 @@ dist/
 .next/
 web/out/
 .env
+data/*.db
 data/memory.db
+data/auth.db
 data/profile.json
 data/sessions.json
 data/export_*.json

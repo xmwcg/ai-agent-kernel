@@ -1,0 +1,22 @@
+# 企业一键部署：docker compose up -d
+# 先用 .env 或下方 environment 提供 LLM_API_KEY / ADMIN_TOKEN
+services:
+  agent-kernel:
+    build: .
+    image: ai-agent-kernel:enterprise
+    ports:
+      - "8787:8787"
+    environment:
+      - PORT=8787
+      - LLM_API_KEY=${LLM_API_KEY}
+      - LLM_BASE_URL=${LLM_BASE_URL:-https://tokenhub.tencentmaas.com/v1}
+      - LLM_MODEL=${LLM_MODEL:-hy3}
+      - ADMIN_TOKEN=${ADMIN_TOKEN:-please-change-admin-token}
+      - ENTERPRISE_NAME=${ENTERPRISE_NAME:-AI Agent Kernel}
+      - ENTERPRISE_LOGO=${ENTERPRISE_LOGO:-}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:8787/api/status').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

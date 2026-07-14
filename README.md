@@ -52,6 +52,44 @@ docker run -p 8787:8787 \
 
 容器内含 python3，因此 `run_python` 工具在容器内可用。
 
+## 企业部署（Enterprise）
+
+内核已含企业层：**轻量鉴权（管理员令牌 + 租户 API Key，逻辑隔离）、用量监控、管理后台 `/admin`、品牌化配置**。
+
+### 一键部署
+
+```bash
+cp .env.example .env        # 填 LLM_API_KEY / ADMIN_TOKEN（生产必填）
+docker compose up -d       # API + 前端同源单进程，端口 8787
+# 打开 http://localhost:8787
+```
+
+### 关键环境变量
+
+| 变量 | 说明 |
+|------|------|
+| `ADMIN_TOKEN` | 管理员令牌；留空则启动时自动生成（控制台打印），生产务必固定 |
+| `ENTERPRISE_NAME` | 企业名称（前端/后台展示） |
+| `ENTERPRISE_LOGO` | 企业 Logo URL（可选） |
+
+### 鉴权模型
+
+- `/api/chat`、`/api/tool` 需携带 `Authorization: Bearer <token>`（管理员或租户密钥）。
+- `/api/admin/*` 仅管理员令牌可访问。
+- 管理员在 `/admin` 页面为团队/客户创建租户密钥（逻辑多租户隔离）。
+
+### 监控
+
+- 管理员后台 `/admin` 查看：总请求数、Token 消耗、成功率、各租户明细。
+- 用量数据来自 LLM token 追踪（见 `src/agent/brain/llm.ts` + `src/agent/enterprise/auth.ts`）。
+
+### 企业文档
+
+- 产品说明：`docs/enterprise/PRODUCT.md`
+- 定价方案：`docs/enterprise/PRICING.md`
+- 交付清单：`docs/enterprise/DELIVERY.md`
+- 客户上手：`docs/enterprise/ONBOARDING.md`
+
 ## REPL 命令
 
 `/help` `/status` `/tools` `/tool <name> <json>` `/route <text>` `/switch <agent>`
